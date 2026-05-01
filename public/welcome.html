@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IKYY OFFICIAL • Core</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.lines.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #030712; color: #f3f4f6; margin: 0; padding: 0; overflow-x: hidden; }
+        #vanta-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .main-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+        .glass-card { background: rgba(17, 24, 39, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 24px; backdrop-filter: blur(20px); width: 100%; max-width: 600px; padding: 2.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        .neo-button { background: #030712; border: 1px solid rgba(56, 189, 248, 0.3); transition: all 0.3s ease; }
+        .neo-button:hover { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1.02); border-color: #38bdf8; }
+        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .tech-tags-container { overflow: hidden; white-space: nowrap; width: 100%; position: relative; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
+        .tech-tags-track { display: inline-block; animation: scroll 15s linear infinite; }
+        .tech-tag { display: inline-block; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); color: #94a3b8; padding: 6px 14px; margin: 0 4px; border-radius: 99px; font-size: 10px; font-weight: 700; }
+        /* Sidebar Menu */
+        #sidebar { transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0); transform: translateX(100%); }
+        #sidebar.active { transform: translateX(0); }
+    </style>
+</head>
+<body>
+
+    <div id="vanta-canvas"></div>
+
+    <button onclick="toggleSidebar()" class="fixed top-8 right-8 z-50 p-4 bg-black/40 border border-white/10 rounded-2xl backdrop-blur-xl hover:border-sky-500 transition-all group">
+        <div class="space-y-2">
+            <span class="block w-8 h-0.5 bg-white group-hover:translate-x-1 transition-transform"></span>
+            <span class="block w-8 h-0.5 bg-sky-500"></span>
+            <span class="block w-5 h-0.5 bg-white group-hover:w-8 transition-all"></span>
+        </div>
+    </button>
+
+    <div id="sidebar" class="fixed inset-0 bg-[#030712]/95 backdrop-blur-2xl z-[40] flex items-center justify-center">
+        <div class="flex flex-col gap-8 text-center">
+            <p class="text-zinc-600 text-[10px] font-bold tracking-[1em] mb-4 uppercase">Navigation</p>
+            <a href="/" class="text-5xl font-black text-sky-500 italic hover:scale-110 transition-transform">HOME</a>
+            <a href="/docs" class="text-5xl font-black text-white italic hover:text-sky-400 transition-all">EXPLORE DOCS</a>
+            <a href="https://t.me/IkyyExecutive" target="_blank" class="text-5xl font-black text-white italic hover:text-sky-400 transition-all">CONTACT</a>
+            <button onclick="toggleSidebar()" class="mt-16 p-4 rounded-full border border-white/10 text-white/40 hover:text-white transition-all">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="glass-card text-center">
+            <div class="flex flex-col items-center mb-8">
+                <div class="relative mb-5">
+                    <div class="absolute -inset-2 bg-sky-500 rounded-full opacity-10 animate-pulse"></div>
+                    <img src="https://files.catbox.moe/w180b4.jpg" alt="IkyyXD" class="w-24 h-24 rounded-full border-2 border-sky-500/50 relative z-10 shadow-2xl">
+                    <span class="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-[#030712] z-20"></span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-black tracking-tighter bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent italic">IKYY_OFFICIALL</h1>
+                <p class="text-sky-500 text-[9px] font-bold tracking-[0.4em] uppercase mt-2">Core Backend Architect</p>
+            </div>
+
+            <p class="mb-8 text-zinc-400 text-xs md:text-sm leading-relaxed px-2">
+                Specializing in high-concurrency API services, web scraping automation, and secure canvas graphics generation. Pushing digital boundaries from Jakarta, ID.
+            </p>
+
+            <div class="tech-tags-container mb-10">
+                <div class="tech-tags-track">
+                    <span class="tech-tag">NODE.JS</span><span class="tech-tag">EXPRESS</span><span class="tech-tag">CANVAS</span><span class="tech-tag">CHEERIO</span><span class="tech-tag">AXIOS</span>
+                    <span class="tech-tag">NODE.JS</span><span class="tech-tag">EXPRESS</span><span class="tech-tag">CANVAS</span><span class="tech-tag">CHEERIO</span><span class="tech-tag">AXIOS</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <a href="/docs" class="neo-button py-4 rounded-xl font-bold text-[10px] tracking-[0.2em] text-sky-400">EXPLORE DOCS ➡️</a>
+                <a href="https://t.me/IkyyExecutive" target="_blank" class="py-4 bg-white/5 border border-white/10 rounded-xl font-bold text-[10px] tracking-[0.2em] text-zinc-400 hover:bg-white/10">CONTACT ME</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        VANTA.LINES({
+            el: "#vanta-canvas",
+            mouseControls: true, touchControls: true, gyroControls: false,
+            minHeight: 200.00, minWidth: 200.00,
+            scale: 1.00, scaleMobile: 1.00,
+            color: 0x38bdf8, backgroundColor: 0x030712,
+            points: 8.00, maxDistance: 20.00, spacing: 20.00
+        })
+    </script>
+</body>
+</html>

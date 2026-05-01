@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IKYY API V2 • Pro Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #02040a; color: #e6edf3; }
+        .glass { background: rgba(13, 17, 23, 0.8); border: 1px solid #30363d; border-radius: 20px; transition: 0.3s ease; }
+        .folder-header { cursor: pointer; user-select: none; }
+        .folder-header:hover { background: rgba(48, 54, 61, 0.4); }
+        .endpoint-row { border-top: 1px solid #30363d; transition: 0.2s; }
+        .endpoint-row:hover { background: rgba(56, 189, 248, 0.05); }
+        .code-font { font-family: 'Fira Code', monospace; }
+        .hidden-content { display: none; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
+        
+        #resultModal { transition: all 0.3s ease; opacity: 0; pointer-events: none; }
+        #resultModal.active { opacity: 1; pointer-events: auto; }
+        .modal-content { transform: scale(0.95); transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        #resultModal.active .modal-content { transform: scale(1); }
+
+        #toast { position: fixed; bottom: 20px; right: 20px; transform: translateY(100px); transition: 0.3s; z-index: 200; }
+        #toast.show { transform: translateY(0); }
+
+        #sidebar { transition: all 0.4s ease; opacity: 0; pointer-events: none; }
+        #sidebar.active { opacity: 1; pointer-events: auto; }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div id="toast" class="bg-sky-600 text-white px-6 py-3 rounded-xl font-bold text-xs shadow-2xl flex items-center gap-3">
+        <i data-lucide="check-circle" class="w-4 h-4"></i>
+        <span>Copied to Clipboard!</span>
+    </div>
+
+    <div id="sidebar" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-[150] flex items-center justify-center">
+        <div class="flex flex-col gap-8 text-center">
+            <a href="/" class="text-4xl font-black hover:text-sky-400 transition-all italic">HOME</a>
+            <a href="/docs" class="text-4xl font-black text-sky-500 underline decoration-4 underline-offset-8 italic">DOCS</a>
+            <a href="https://t.me/IkyyExecutive" target="_blank" class="text-4xl font-black hover:text-sky-400 transition-all italic">SUPPORT</a>
+            <button onclick="toggleSidebar()" class="mt-12 text-[10px] tracking-[0.5em] text-zinc-500 font-bold uppercase border border-zinc-800 px-6 py-2 rounded-full">Close Menu</button>
+        </div>
+    </div>
+
+    <div id="resultModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div class="modal-content glass w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl border-sky-500/20">
+            <div class="p-4 border-b border-[#30363d] flex justify-between items-center bg-[#0d1117]">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="terminal" class="w-4 h-4 text-sky-400"></i>
+                    <h2 id="modalTitle" class="font-bold text-sky-400 italic text-sm tracking-widest uppercase">Response</h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="copyResponseBtn" onclick="copyResponse()" class="p-2 hover:bg-zinc-800 rounded-lg text-zinc-400 transition-colors" title="Copy Response">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="closeModal()" class="p-2 hover:bg-zinc-800 rounded-lg text-zinc-400">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="modalBody" class="p-6 overflow-auto bg-[#030712] code-font text-[11px] leading-relaxed">
+                </div>
+        </div>
+    </div>
+
+    <button onclick="toggleSidebar()" class="fixed top-6 left-6 z-50 p-3 bg-[#0d1117] border border-[#30363d] rounded-xl hover:border-sky-500 transition-all shadow-2xl group">
+        <div class="space-y-1.5">
+            <div class="w-6 h-0.5 bg-sky-400 group-hover:w-4 transition-all"></div>
+            <div class="w-6 h-0.5 bg-sky-400"></div>
+            <div class="w-4 h-0.5 bg-sky-400 group-hover:w-6 transition-all"></div>
+        </div>
+    </button>
+
+    <div class="max-w-4xl mx-auto pt-16 md:pt-0">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+            <div class="text-center md:text-left">
+                <h1 class="text-4xl font-extrabold tracking-tighter bg-gradient-to-r from-sky-400 to-blue-500 bg-clip-text text-transparent italic">Ikyy API's</h1>
+                <p class="text-zinc-500 text-[10px] font-bold tracking-[0.3em] uppercase mt-1">V2.6 Smart Edition</p>
+            </div>
+            <div class="flex gap-3 bg-[#0d1117] border border-[#30363d] p-4 rounded-2xl shadow-xl">
+                <div class="text-center px-4 border-r border-zinc-800">
+                    <p class="text-[10px] text-zinc-500 font-bold uppercase">Status</p>
+                    <p class="text-emerald-500 text-xs font-black">ONLINE</p>
+                </div>
+                <div class="text-center px-4">
+                    <p class="text-[10px] text-zinc-500 font-bold uppercase">Region</p>
+                    <p class="text-sky-500 text-xs font-black">ID-JKT</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative mb-8 group">
+            <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-600">
+                <i data-lucide="search" class="w-4 h-4"></i>
+            </div>
+            <input type="text" id="apiSearch" onkeyup="filterAPI()" placeholder="Search endpoints (berita, antara...)" 
+                   class="w-full bg-[#0d1117] border border-[#30363d] rounded-2xl pl-12 pr-6 py-4 outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all text-sm group-hover:border-zinc-500">
+        </div>
+
+        <div id="folder-list" class="space-y-4">
+            <div class="text-center py-20 opacity-20">
+                <p class="text-xs font-bold tracking-[5px] uppercase animate-pulse italic">Loading System...</p>
+            </div>
+        </div>
+
+        <footer class="mt-20 text-center pb-10 border-t border-zinc-900 pt-10">
+            <p class="text-[9px] text-zinc-600 font-bold tracking-[4px] uppercase italic">Architecture by Ikyy Officiall</p>
+        </footer>
+    </div>
+
+    <script>
+        let rawData = [];
+        let lastResponse = "";
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        async function fetchEndpoints() {
+            try {
+                const res = await fetch('/api/list');
+                rawData = await res.json();
+                renderUI(rawData);
+                lucide.createIcons();
+            } catch (err) {
+                console.error("Gagal fetch data kyy:", err);
+            }
+        }
+
+        function renderUI(data) {
+            const container = document.getElementById('folder-list');
+            container.innerHTML = '';
+            const groups = data.reduce((acc, api) => {
+                if (!acc[api.category]) acc[api.category] = [];
+                acc[api.category].push(api);
+                return acc;
+            }, {});
+
+            Object.keys(groups).forEach(cat => {
+                const folderId = `cat-${cat.toLowerCase().replace(/\s/g, '-')}`;
+                const items = groups[cat];
+                container.innerHTML += `
+                    <div class="glass overflow-hidden shadow-2xl">
+                        <div class="folder-header p-5 flex justify-between items-center" onclick="toggleFolder('${folderId}', this)">
+                            <div class="flex items-center gap-4">
+                                <span class="text-xl">${getIcon(cat)}</span>
+                                <div>
+                                    <h2 class="font-bold text-slate-100">${cat}</h2>
+                                    <p class="text-[9px] font-bold text-sky-500 uppercase tracking-widest">${items.length} ENDPOINTS</p>
+                                </div>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-zinc-600 transition-transform arrow"></i>
+                        </div>
+                        <div id="${folderId}" class="hidden-content border-t border-[#30363d]">
+                            ${items.map(api => {
+                                // LOGIKA DETEKSI PARAM KOSONG/NULL
+                                const hasParam = api.param && api.param !== "" && api.param !== "null";
+                                const fullUrl = hasParam 
+                                    ? `${window.location.origin}${api.path}?${api.param}=${encodeURIComponent(api.example || 'test')}`
+                                    : `${window.location.origin}${api.path}`;
+
+                                return `
+                                <div class="endpoint-row p-4 flex justify-between items-center group">
+                                    <div class="overflow-hidden mr-4">
+                                        <div class="flex items-center gap-2">
+                                            <h3 class="text-sm font-bold text-zinc-300 group-hover:text-sky-400 transition-colors">${api.name}</h3>
+                                            <button onclick="copyToClipboard('${fullUrl}')" class="opacity-0 group-hover:opacity-100 p-1 hover:text-sky-400 text-zinc-600 transition-all" title="Copy URL">
+                                                <i data-lucide="link" class="w-3 h-3"></i>
+                                            </button>
+                                        </div>
+                                        <p class="text-[9px] code-font text-zinc-600 mt-1 truncate italic">${api.path}</p>
+                                    </div>
+                                    <button onclick="testAPI('${api.path}', '${api.param}', '${api.example}', ${api.isImage})" 
+                                       class="bg-sky-600/10 hover:bg-sky-600 text-sky-400 hover:text-white px-5 py-2 rounded-xl text-[10px] font-black tracking-tighter transition-all active:scale-95 shadow-lg">
+                                        ${api.isImage ? 'GENERATE' : 'RUN'}
+                                    </button>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+            });
+        }
+
+        async function testAPI(path, param, example, isImage) {
+            const modal = document.getElementById('resultModal');
+            const modalBody = document.getElementById('modalBody');
+            const modalTitle = document.getElementById('modalTitle');
+            const copyBtn = document.getElementById('copyResponseBtn');
+            
+            // LOGIKA SMART URL UNTUK MODAL
+            const hasParam = param && param !== "" && param !== "null" && param !== "undefined";
+            const apiUrl = hasParam 
+                ? `${window.location.origin}${path}?${param}=${encodeURIComponent(example || 'test')}`
+                : `${window.location.origin}${path}`;
+            
+            modalTitle.innerText = `FETCHING: ${path.toUpperCase()}`;
+            modalBody.innerHTML = `
+                <div class="mb-4 p-3 bg-white/5 border border-white/10 rounded-lg">
+                    <p class="text-[9px] text-zinc-500 uppercase font-bold mb-1">Target URL:</p>
+                    <p class="text-sky-400 break-all text-[10px]">${apiUrl}</p>
+                </div>
+                <div class="flex justify-center py-10" id="modalLoader">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500"></div>
+                </div>`;
+            
+            modal.classList.add('active');
+            copyBtn.classList.add('hidden');
+
+            try {
+                if (isImage) {
+                    if(document.getElementById('modalLoader')) document.getElementById('modalLoader').remove();
+                    modalBody.innerHTML += `<img src="${apiUrl}" class="rounded-lg shadow-2xl mx-auto border border-zinc-800 mt-2">`;
+                    lastResponse = apiUrl;
+                    copyBtn.classList.remove('hidden');
+                } else {
+                    const res = await fetch(apiUrl);
+                    const json = await res.json();
+                    lastResponse = JSON.stringify(json, null, 2);
+                    if(document.getElementById('modalLoader')) document.getElementById('modalLoader').remove();
+                    modalBody.innerHTML += `<pre class="text-emerald-400 mt-2"><code>${lastResponse}</code></pre>`;
+                    copyBtn.classList.remove('hidden');
+                }
+            } catch (err) {
+                if(document.getElementById('modalLoader')) document.getElementById('modalLoader').remove();
+                modalBody.innerHTML += `<p class="text-red-500 font-bold mt-2">FAILED: ${err.message}</p>`;
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            showToast();
+        }
+
+        function copyResponse() {
+            navigator.clipboard.writeText(lastResponse);
+            showToast();
+        }
+
+        function showToast() {
+            const t = document.getElementById('toast');
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('active');
+        }
+
+        function toggleFolder(id, el) {
+            const content = document.getElementById(id);
+            const arrow = el.querySelector('.arrow');
+            const isOpen = content.style.display === "block";
+            content.style.display = isOpen ? "none" : "block";
+            arrow.style.transform = isOpen ? "rotate(0deg)" : "rotate(180deg)";
+        }
+
+        function filterAPI() {
+            const val = document.getElementById('apiSearch').value.toLowerCase();
+            const filtered = rawData.filter(i => i.name.toLowerCase().includes(val) || i.category.toLowerCase().includes(val));
+            renderUI(filtered);
+            if(val !== "") document.querySelectorAll('.hidden-content').forEach(el => el.style.display = "block");
+        }
+
+        function getIcon(cat) {
+            const map = { 'Maker': '🎨', 'Downloader': '📥', 'Search': '🔎', 'Scraper': '📰', 'Tools': '⚙️', 'AI': '🧑‍💻' };
+            return map[cat] || '📁';
+        }
+
+        fetchEndpoints();
+    </script>
+</body>
+</html>

@@ -73,7 +73,13 @@ app.use((req, res, next) => {
 // =======================
 // STATIC (optional)
 // =======================
-app.use('/', express.static(path.join(__dirname, '../public')));
+app.use('/', express.static(path.join(process.cwd(), 'public'), {
+    index: 'welcome.html'
+}));
+
+app.get('/docs', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'public', 'docs.html'));
+});
 
 // =======================
 // 🔥 AUTO LOAD PLUGINS

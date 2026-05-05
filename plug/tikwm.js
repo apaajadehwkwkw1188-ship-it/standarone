@@ -5,7 +5,7 @@ module.exports = {
     path: "/api/download/tiktok",
     param: "url",
     category: "Downloader",
-    example: "https://vt.tiktok.com/xxxxx",
+    example: "https://vt.tiktok.com/ZS94vbE5V/",
 
     execute: async (req) => {
         const { url } = req.query;
